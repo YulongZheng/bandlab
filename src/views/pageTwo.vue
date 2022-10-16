@@ -10,24 +10,32 @@
 <script>
 export default {
   data() {
-    return {};
+    return {
+      ctx: ''
+    };
   },
   mounted() {},
   methods: {
     play(what) {
-      const ctx = new AudioContext();
+      if(this.ctx !== ''){
+        this.stop()
+      }
+      this.ctx = new AudioContext();
       let audio;
       fetch(what)
         .then((data) => data.arrayBuffer())
-        .then((arrayBuffer) => ctx.decodeAudioData(arrayBuffer))
+        .then((arrayBuffer) => this.ctx.decodeAudioData(arrayBuffer))
         .then((decodedAudio) => {
           audio = decodedAudio;
-          const playSound = ctx.createBufferSource();
+          const playSound = this.ctx.createBufferSource();
           playSound.buffer = audio;
-          playSound.connect(ctx.destination);
-          playSound.start(ctx.currentTime);
+          playSound.connect(this.ctx.destination);
+          playSound.start(this.ctx.currentTime);
         });
     },
+    stop(){
+      this.ctx.close();
+    }
   },
 };
 </script>
