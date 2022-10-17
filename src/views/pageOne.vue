@@ -3,10 +3,11 @@
     <div class="func flex-row">
       <button @click.prevent="handleReset">Reset</button>
       <button @click.prevent="handleSort">Sort Title</button>
+      <button @click.prevent="handleGroupBy">Group by User Id</button>
       <div class="flex-row">
-        <span class="">Group By User Id: </span>
+        <span class="">Filter By User Id: </span>
         <div style="width: 1rem"></div>
-        <select name="" id="" @change.prevent="handleGroupby" v-model="userId">
+        <select name="" id="" @change.prevent="handleFilter" v-model="userId">
           <option value="">All</option>
           <option v-for="(item, index) in userIds" :key="index" :value="item">
             {{ item }}
@@ -38,7 +39,7 @@ export default {
       posts: [],
       userIds: [],
       userId: "",
-      originalPosts: []
+      originalPosts: [],
     };
   },
   mounted() {
@@ -58,10 +59,23 @@ export default {
         }
       });
     },
-    handleGroupby() {
-      this.posts = this.originalPosts
-      if(this.userId === ''){
-        return 
+    handleGroupBy() {
+      this.userId = ''
+      const groupBy = (array, key) => {
+        return array.reduce((result, currentValue) => {
+          (result[currentValue[key]] = result[currentValue[key]] || []).push(
+            currentValue
+          );
+          return result;
+        }, {}); 
+      };
+      this.posts = this.originalPosts;
+      this.posts = Object.values(groupBy(this.posts, "userId")).flat() 
+    },
+    handleFilter() {
+      this.posts = this.originalPosts;
+      if (this.userId === "") {
+        return;
       }
       this.posts = this.posts.filter((item) => item.userId == this.userId);
     },
